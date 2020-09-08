@@ -5,7 +5,7 @@ import com.enteld.core.token.Token
 import com.enteld.core.token.TokenManager
 import org.koin.dsl.module
 
-val CoreModules = module {
+val CoreModule = module {
     single { Core() }
     factory { (tokens: List<Token>) ->
         TokenManager(tokens)
