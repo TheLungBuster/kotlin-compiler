@@ -1,3 +1,8 @@
+/* Program which finds
+ * the biggest divider
+ * of two numbers
+ */
+
 fun main() {
 
     var firstNumber: Int = 98
@@ -11,5 +16,5 @@ fun main() {
         }
     }
 
-    println("НОД: $firstNumber")
+    println(firstNumber)
 }

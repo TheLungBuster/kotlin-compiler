@@ -61,5 +61,4 @@ object OutputTerm : KoinComponent {
 
     private fun dumpErrors(impl: DumpPrint, path: String): Boolean =
         impl.printErrors(path)
-
 }

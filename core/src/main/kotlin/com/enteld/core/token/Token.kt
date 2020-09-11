@@ -8,6 +8,8 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
         KeywordVar,
         KeywordFun,
         KeywordFor,
+        KeywordIn,
+        KeywordIs,
         KeywordWhile,
         KeywordDo,
         KeywordIf,
@@ -16,11 +18,10 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
         KeywordImport,
         KeywordReturn,
         Unknown,
+        Identifier,
 
         LParen,
         RParen,
-        LBracket,
-        RBracket,
         LFigured,
         RFigured,
         LBox,
@@ -33,7 +34,7 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
         OperatorEqual,
         OperatorNotEqual,
 
-        OperatorEnd,
+        OperatorAnd,
         OperatorOr,
         OperatorNot,
 
@@ -41,7 +42,10 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
         OperatorMinus,
         OperatorMultiply,
         OperatorDivision,
+        OperatorMod,
         OperatorAssignment,
+        OperatorIncrement,
+        OperatorDecrement,
         OperatorPlusAndAssign,
         OperatorMinusAndAssign,
         OperatorMultiplyAndAssign,
@@ -58,29 +62,18 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
 
         Dot,
         Colon,
-        Semicolon,
         Comma,
 
         TypeAny,
-        TypeAnyNullable,
         TypeInt,
-        TypeIntNullable,
         TypeString,
-        TypeStringNullable,
         TypeDouble,
-        TypeDoubleNullable,
-        TypeLong,
-        TypeLongNullable,
+        TypeBoolean,
         TypeUnit,
-        TypeUnitNullable,
-        TypeFloat,
-        TypeFloatNullable,
 
         LiteralString,
         LiteralInt,
         LiteralDouble,
-        LiteralLong,
-        LiteralFloat,
         LiteralTrue,
         LiteralFalse,
         LiteralNull,
@@ -95,6 +88,7 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
         type : "$type",
         lexeme : "$lexeme",
         position : $path: (${positions.start.row}, ${positions.start.column})
+
     """.trimIndent()
 
     fun dumpTab(path: String) = """    type : "$type",
