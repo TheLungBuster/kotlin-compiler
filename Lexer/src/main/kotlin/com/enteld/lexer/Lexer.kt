@@ -49,7 +49,7 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
     @Throws(LexerException::class)
     fun parseFile(): List<Token> {
         do {
-            tokens.add(findToken())
+            tokens.add(fetchToken())
             positions.update()
             buffer = EMPTY_STRING
         } while (tokens.last().type != Token.Type.End)
@@ -57,7 +57,7 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
         return tokens
     }
 
-    private fun findToken(): Token {
+    private fun fetchToken(): Token {
         while (reader.peek().toChar().isWhitespace()) {
             skipSetPosition()
         }
@@ -87,7 +87,7 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" -> isNumber()
             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-            "_" -> isIdentifier()
+            "_" -> isKeywordOrIdentifier()
             else -> isAlone()
         }
 
@@ -148,7 +148,7 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
             }
         )
 
-    private fun isIdentifier(): Token {
+    private fun isKeywordOrIdentifier(): Token {
         while (patternIdentifier(reader.peek())) {
             getAndSetPositions()
         }
@@ -157,6 +157,7 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
             positions = positions.copyPoint(),
             type = when (buffer) {
                 "import" -> Token.Type.KeywordImport
+                "package" -> Token.Type.KeywordPackage
                 "Any" -> Token.Type.TypeAny
                 "Int" -> Token.Type.TypeInt
                 "Double" -> Token.Type.TypeDouble
@@ -178,11 +179,10 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
                 "is" -> Token.Type.KeywordIs
                 "when" -> Token.Type.KeywordWhen
                 "class" -> Token.Type.KeywordClass
-                "null"-> Token.Type.LiteralNull
+                "null" -> Token.Type.LiteralNull
                 else -> Token.Type.Identifier
             }
         )
-
     }
 
     private fun isNumber(): Token {
@@ -265,7 +265,7 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
             getAndSetPositions()
             if (buffer.first() == buffer.last()) {
                 return Token(
-                    lexeme = buffer.substring(1 until  buffer.length - 1),
+                    lexeme = buffer.substring(1 until buffer.length - 1),
                     positions = positions.copyPoint(),
                     type = Token.Type.LiteralString
                 )
@@ -280,8 +280,8 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
 
     private fun isCommentOrOperation(): Token =
         when (reader.peek().toChar()) {
-            '/'  -> isSLComment()
-            '*'  -> isMLComment()
+            '/' -> isSLComment()
+            '*' -> isMLComment()
             else -> isOperation()
         }
 

@@ -15,6 +15,7 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
         KeywordIf,
         KeywordElse,
         KeywordWhen,
+        KeywordPackage,
         KeywordImport,
         KeywordReturn,
         Unknown,
@@ -96,5 +97,3 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
     position : $path: (${positions.start.row}, ${positions.start.column})
     """
 }
-
-val plugToken: (Token.Type, String, Positions) -> Token = { type, lexeme, pos -> Token(type, lexeme, pos) }
