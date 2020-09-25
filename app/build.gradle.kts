@@ -17,5 +17,7 @@ application {
         implementation(project(":core"))
         implementation(project(":paramsreader"))
         implementation(project(":lexer"))
+        implementation(project(":parser"))
+        implementation(project(":ast"))
     }
 }
