@@ -7,7 +7,7 @@ import org.koin.dsl.module
 
 val CoreModule = module {
     single { ResourceReader("ru") }
-    factory { (tokens: List<Token>) ->
+    single { (tokens: List<Token>) ->
         TokenManager(tokens)
     }
 }

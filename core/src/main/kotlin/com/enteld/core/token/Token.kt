@@ -71,6 +71,7 @@ data class Token(val type: Type, val lexeme: String, val positions: Positions) {
         TypeDouble,
         TypeBoolean,
         TypeUnit,
+        TypeList,
 
         LiteralString,
         LiteralInt,

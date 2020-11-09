@@ -15,5 +15,7 @@ class TokenManager(private var tokens: List<Token>) {
 
     fun peek() = tokens[position]
 
+    fun peekNextTokenType() = tokens[position+1].type
+
     fun peekType() = tokens[position].type
 }

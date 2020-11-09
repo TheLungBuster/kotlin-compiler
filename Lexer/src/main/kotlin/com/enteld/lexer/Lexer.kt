@@ -1,5 +1,6 @@
 package com.enteld.lexer
 
+import com.enteld.core.output.DumpErrors
 import com.enteld.core.output.DumpPrint
 import com.enteld.core.output.OutputTerm
 import com.enteld.core.token.Positions
@@ -12,7 +13,7 @@ import org.koin.core.KoinComponent
 import java.io.FileReader
 import java.io.PushbackReader
 
-class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
+class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint, DumpErrors {
 
     class LexerException(override val message: String) : Exception(message)
 
@@ -23,7 +24,6 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
     }
 
     override val errors: MutableMap<Token, String> = mutableMapOf()
-    override val warnings: MutableMap<Token, String> = mutableMapOf()
 
     private val tokens = mutableListOf<Token>()
 
@@ -163,6 +163,7 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
                 "Double" -> Token.Type.TypeDouble
                 "String" -> Token.Type.TypeString
                 "Boolean" -> Token.Type.TypeBoolean
+                "List" -> Token.Type.TypeList
                 "Unit" -> Token.Type.TypeUnit
                 "true" -> Token.Type.LiteralTrue
                 "false" -> Token.Type.LiteralFalse
@@ -366,6 +367,6 @@ class Lexer(bufferedReader: FileReader) : KoinComponent, DumpPrint {
                 errors[it] = it.dump(path)
             }
         }
-        return super.printErrors(path)
+        return errors.isNotEmpty()
     }
 }

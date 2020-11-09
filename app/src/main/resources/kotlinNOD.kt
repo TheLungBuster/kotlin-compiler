@@ -17,5 +17,5 @@ fun main() {
         }
     }
 
-    println(firstNumber)
+    println(1)
 }

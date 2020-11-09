@@ -4,6 +4,7 @@ import com.enteld.ast.nodes.BaseNode
 import com.enteld.ast.nodes.RootSubjectNode
 import com.enteld.ast.nodes.structures.ImportsNode
 import com.enteld.ast.nodes.structures.PackageNode
+import com.enteld.ast.nodes.visitor.Visitor
 import com.enteld.core.token.Token
 
 class RootScopeNode: BaseNode() {
@@ -36,7 +37,5 @@ class RootScopeNode: BaseNode() {
         return true
     }
 
-    override fun accept() {
-        TODO("Not yet implemented")
-    }
+    override fun accept(visitor: Visitor) = visitor.visit(this)
 }

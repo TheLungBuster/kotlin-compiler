@@ -1,5 +1,8 @@
 package com.enteld.app
 
+import com.enteld.ast.nodes.di.ASTModule
+import com.enteld.parser.Parser
+import com.enteld.ast.nodes.scopes.RootScopeNode
 import com.enteld.core.di.CoreModule
 import com.enteld.core.output.OutputTerm.catchPrintErrorOrValue
 import com.enteld.core.output.OutputTerm.runWrapper
@@ -10,6 +13,7 @@ import com.enteld.lexer.Lexer
 import com.enteld.lexer.di.LexerModule
 import com.enteld.paramsreader.ParamsReader
 import com.enteld.paramsreader.di.ParamsReaderModule
+import com.enteld.parser.di.ParserModule
 import org.koin.core.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -27,17 +31,15 @@ fun main(args: Array<String>) {
 
     val resourceReader = Application.getResourceReader()
 
-    val paramsReader: ParamsReader = catchPrintErrorOrValue {
-        Application.getParamsReader(args).also {
-            it.parse()
-        }
-    }
+    val paramsReader: ParamsReader = catchPrintErrorOrValue(
+        func = { Application.getParamsReader(args).also { it.parse() } }
+    )
 
     val file = File(paramsReader.getPath())
 
-    val inputStream: FileReader = catchPrintErrorOrValue {
-        Application.readFile(file.absolutePath)
-    }
+    val inputStream: FileReader = catchPrintErrorOrValue (
+        func = { Application.readFile(file.absolutePath) }
+    )
 
     val lexer = Application.getLexer(inputStream)
 
@@ -48,6 +50,22 @@ fun main(args: Array<String>) {
         task = lexer::parseFile,
         dumper = lexer,
         params = paramsReader.getParamsLexer(),
+        fileName = file.name,
+        onErrors = Application::exitProcess
+    )
+
+    val parser = Application.getParser(tokens)
+
+    val tree: RootScopeNode = runWrapper(
+        startMessage = resourceReader.getResource("parser_start_message"),
+        loadMessage = resourceReader.getResource("parser_load_message"),
+        endMessage = resourceReader.getResource("parser_end_message"),
+        task = {
+            parser.parse()
+            parser.tree
+        },
+        dumper = parser,
+        params = paramsReader.getParamsAST(),
         fileName = file.name,
         onErrors = Application::exitProcess
     )
@@ -64,7 +82,9 @@ object Application : KoinComponent {
                 CoreModule,
                 OutputTermModule,
                 ParamsReaderModule,
-                LexerModule
+                LexerModule,
+                ParserModule,
+                ASTModule
             )
         }
     }
@@ -83,6 +103,9 @@ object Application : KoinComponent {
 
     fun getLexer(inputStream: FileReader): Lexer =
         get(parameters = { parametersOf(inputStream) })
+
+    fun getParser(tokens: List<Token>): Parser =
+        get(parameters = { parametersOf(tokens) })
 
     fun exitProcess() {
         stop()

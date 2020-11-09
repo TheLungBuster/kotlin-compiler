@@ -11,7 +11,7 @@ val OutputTermModule = module {
     single { TermColors() }
 }
 
-object OutputTerm : KoinComponent {
+object OutputTerm : KoinComponent, Dumper {
 
     private val termColors by inject<TermColors>()
 
@@ -19,20 +19,15 @@ object OutputTerm : KoinComponent {
 
     fun printError(message: String) = println(this().red(message))
 
-    inline fun <V> catchPrintErrorOrValue(func: () -> V): V {
+    inline fun <V> catchPrintErrorOrValue(func: () -> V, onErrors: () -> Unit = {}): V {
         return try {
             func()
         } catch (exception: Throwable) {
             exception.message?.let { printError(it) }
+            onErrors()
             exitProcess(-1)
         }
     }
-
-    private fun dump(impl: DumpPrint, params: List<Params>, path: String) =
-        impl.printDump(params, path)
-
-    private fun dumpToFile(impl: DumpPrint, params: List<Params>, path: String) =
-        impl.printDumpToFile(params, path)
 
     fun <D> runWrapper(
         startMessage: String,
@@ -47,18 +42,21 @@ object OutputTerm : KoinComponent {
     ): D {
         println(this().reset(startMessage))
         println(this().blue(loadMessage))
-        return catchPrintErrorOrValue(task).also {
-            println(this().green(endMessage))
-            dump(dumper, params, fileName)
-            dumpToFile(dumper, params, fileName)
-            if (dumpErrors(dumper, fileName)) {
+        return catchPrintErrorOrValue(task, onErrors).also {
+            var flagErrors = false
+            if (dumper is DumpPrint) {
+                dumpPrint(dumper, params, fileName)
+            }
+            if (dumper is DumpErrors && dumpErrors(dumper, fileName)) {
+                flagErrors = true
                 onErrors.invoke()
+            }
+            if (dumper is DumpWarnings && dumpWarnings(dumper, fileName)) {
+                onWarnings.invoke()
+            }
+            if (!flagErrors) {
+                println(this().green(endMessage))
             }
         }
     }
-
-    private fun printWarning(message: String) = println(termColors.yellow(message))
-
-    private fun dumpErrors(impl: DumpPrint, path: String): Boolean =
-        impl.printErrors(path)
 }

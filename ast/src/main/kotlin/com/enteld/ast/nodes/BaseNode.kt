@@ -1,5 +1,6 @@
 package com.enteld.ast.nodes
 
+import com.enteld.ast.nodes.visitor.Visitor
 import com.enteld.core.token.Token
 import com.enteld.core.token.TokenManager
 import org.koin.core.KoinComponent
@@ -7,8 +8,8 @@ import org.koin.core.inject
 
 
 abstract class BaseNode() : KoinComponent {
-    abstract fun accept()
     abstract fun parse(): Boolean
+    abstract fun accept(visitor: Visitor)
 
     protected val tokenManager: TokenManager by inject()
 
@@ -20,7 +21,6 @@ abstract class BaseNode() : KoinComponent {
                     "Skip ${tokenManager.peek().lexeme}:${tokenManager.peek().positions} error in ${Node::class.simpleName}" +
                             " ${message?.let { "with message: $message" } ?: ""}")
             }
-
         }
     }
 
